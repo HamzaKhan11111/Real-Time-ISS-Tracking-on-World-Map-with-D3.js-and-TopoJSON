@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        var d3v7 = window.d3;
+        window.d3=null;
+    </script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.js"></script>
+    <title>DAV LAB</title>
+</head>
+<body>
+    <svg></svg>
+</body>
+<script>
+
+    var svg = d3v7.select("svg")
+        .attr("width", 1000)
+        .attr("height", 1000);
+
+    const g = svg.append("g");
+
+    var proj = d3v7.geoPath(d3v7.geoMercator().scale(150).translate([500, 500]));
+    var points = d3v7.geoMercator().scale(150).translate([500, 500]);
+
+    d3v7.json("http://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(data =>
+    {
+
+        console.log(data);
+
+        const counrties = topojson.feature(data, data.objects.countries);
+
+        g.selectAll("path")
+            .data(counrties.features)
+            .enter()
+            .append("path")
+            .attr("d",proj)
+            .attr("fill", "grey")
+            .attr("stroke", "black")
+            .attr("stroke-width", 0.5);
+
+        // while(true)
+        // {
+            var resp = d3v7.json("http://api.open-notify.org/iss-now.json");
+            resp.then(async function(data) 
+            {
+                console.log(points([data.iss_position["longitude"],data.iss_position["latitude"]]));
+
+                svg.append("circle")
+                    .attr("cx", points([data.iss_position["longitude"],data.iss_position["latitude"]])[0])
+                    .attr("cy", points([data.iss_position["longitude"],data.iss_position["latitude"]])[1])
+                    .attr("r", 10)
+                    .attr("fill", "red")
+                    .attr("class", "cir");
+            });
+        // }
+
+    });
+
+</script>
+</html>
